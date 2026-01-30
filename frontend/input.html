@@ -24,26 +24,25 @@
   <main class="container">
     <div class="card">
       <div class="section-title">MEETING TRANSCRIPT</div>
-      <textarea id="transcript" placeholder="Paste your meeting transcript here..."></textarea>
-      <div class="helper">Inline validation ensures the transcript is not empty.</div>
+      <div id="connectionStatus" style="font-size: 11px; margin-bottom: 8px;">Checking backend connection...</div>
+      <textarea id="transcript" placeholder="Paste your meeting transcript here... (Tip: Press Ctrl+Enter to process)"></textarea>
+      <div class="helper">Paste your meeting transcript above. The AI will extract summaries, action items, and follow-ups.</div>
 
-      <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+      <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items: center;">
         <button id="processBtn" class="btn btn-primary">Process Transcript</button>
-        <label class="btn" style="cursor:pointer;">
-          <input type="file" id="audioInput" accept="audio/*" hidden>
-          🎧 Upload Audio (optional)
-        </label>
-        <span id="status" class="status" style="display:none;"><span class="spinner"></span> Processing...</span>
+        <button id="sampleBtn" class="btn" title="Load a sample meeting transcript">📋 Load Sample</button>
+        <span id="status" class="status" style="display:none;"><span class="spinner"></span> Processing with AI agents...</span>
       </div>
       <div id="error" class="error" style="display:none;"></div>
     </div>
 
     <div class="card" style="margin-top:15px;">
-      <div class="section-title">NOTES</div>
+      <div class="section-title">HOW IT WORKS</div>
       <ul class="list">
-        <li>Submit will POST to <strong>/process-transcript</strong> and redirect to Results.</li>
-        <li>Audio upload is a placeholder if the backend is not ready.</li>
-        <li>Loading and error states demonstrate reliability.</li>
+        <li>📝 <strong>Understanding Agent</strong> — Structures your transcript, identifies decisions, risks, and key points</li>
+        <li>✅ <strong>Action Agent</strong> — Extracts tasks, assigns owners, flags unassigned items</li>
+        <li>🔄 <strong>Follow-Up Agent</strong> — Suggests next meetings, escalations, and reminders</li>
+        <li>💬 <strong>Q&A Agent</strong> — Answer questions about the meeting on the Results page</li>
       </ul>
     </div>
   </main>

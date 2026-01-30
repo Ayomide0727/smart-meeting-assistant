@@ -1,7 +1,7 @@
 {
   "name": "smart-meeting-assistant",
   "version": "1.0.0",
-  "description": "",
+  "description": "Agentic AI-powered Smart Meeting Workflow Orchestrator - IBM Hackathon Project by Team Victors",
   "main": "backend/index.js",
   "scripts": {
     "start": "node backend/index.js"
