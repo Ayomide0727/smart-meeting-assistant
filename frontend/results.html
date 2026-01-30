@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Smart Meeting Assistant - Results</title>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script type="module" src="assets/js/results.js" defer></script>
+</head>
+<body>
+  <header>
+    <div>
+      <h1 style="margin:0; font-size:22px; letter-spacing:-1px;">VICTORS<span>AI</span></h1>
+      <div style="font-size:9px; color:var(--accent-blue); font-weight:800; letter-spacing:3px;">SMART ASSISTANT</div>
+    </div>
+    <div class="btn-group">
+      <a href="index.html" class="btn">🏠 Home</a>
+      <a href="input.html" class="btn">📝 Input</a>
+      <a href="results.html" class="btn btn-primary">📊 Results</a>
+      <a href="demo.html" class="btn">🧩 Demo Flow</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="grid grid-2">
+      <div class="card" style="min-height:300px;">
+        <div class="section-title">SUMMARY</div>
+        <ul id="summary" class="list scroll">
+          <li>Waiting for results...</li>
+        </ul>
+      </div>
+      <div class="card" style="min-height:300px;">
+        <div class="section-title">ACTION ITEMS</div>
+        <ul id="actions" class="list scroll">
+          <li>No tasks yet.</li>
+        </ul>
+      </div>
+      <div class="card" style="min-height:240px;">
+        <div class="section-title">FOLLOW-UP RECOMMENDATIONS</div>
+        <ul id="followups" class="list scroll">
+          <li>None yet.</li>
+        </ul>
+      </div>
+      <div class="card" style="min-height:240px;">
+        <div class="section-title">RAW OUTPUT (DEBUG)</div>
+        <pre id="raw" class="scroll" style="white-space:pre-wrap; color: var(--text-dim);"></pre>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:15px;">
+      <div class="section-title">Q&A CHAT</div>
+      <div id="qaLog" class="chat-log scroll" style="max-height:260px;"></div>
+      <div class="chat">
+        <input id="question" class="input" placeholder="Ask a question, e.g., What tasks did David have?" />
+        <button id="askBtn" class="btn btn-primary">Ask</button>
+        <span id="qaStatus" class="status" style="display:none;"><span class="spinner"></span> Asking...</span>
+      </div>
+      <div id="qaError" class="error" style="display:none;"></div>
+    </div>
+  </main>
+
+  <footer>© 2026 VictorsAI — Smart Meeting Assistant</footer>
+</body>
+</html>

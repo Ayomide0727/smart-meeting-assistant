@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Smart Meeting Assistant - Input</title>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script type="module" src="assets/js/input.js" defer></script>
+</head>
+<body>
+  <header>
+    <div>
+      <h1 style="margin:0; font-size:22px; letter-spacing:-1px;">VICTORS<span>AI</span></h1>
+      <div style="font-size:9px; color:var(--accent-blue); font-weight:800; letter-spacing:3px;">SMART ASSISTANT</div>
+    </div>
+    <div class="btn-group">
+      <a href="index.html" class="btn">🏠 Home</a>
+      <a href="input.html" class="btn btn-primary">📝 Input</a>
+      <a href="results.html" class="btn">📊 Results</a>
+      <a href="demo.html" class="btn">🧩 Demo Flow</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <div class="section-title">MEETING TRANSCRIPT</div>
+      <textarea id="transcript" placeholder="Paste your meeting transcript here..."></textarea>
+      <div class="helper">Inline validation ensures the transcript is not empty.</div>
+
+      <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+        <button id="processBtn" class="btn btn-primary">Process Transcript</button>
+        <label class="btn" style="cursor:pointer;">
+          <input type="file" id="audioInput" accept="audio/*" hidden>
+          🎧 Upload Audio (optional)
+        </label>
+        <span id="status" class="status" style="display:none;"><span class="spinner"></span> Processing...</span>
+      </div>
+      <div id="error" class="error" style="display:none;"></div>
+    </div>
+
+    <div class="card" style="margin-top:15px;">
+      <div class="section-title">NOTES</div>
+      <ul class="list">
+        <li>Submit will POST to <strong>/process-transcript</strong> and redirect to Results.</li>
+        <li>Audio upload is a placeholder if the backend is not ready.</li>
+        <li>Loading and error states demonstrate reliability.</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer>© 2026 VictorsAI — Smart Meeting Assistant</footer>
+</body>
+</html>

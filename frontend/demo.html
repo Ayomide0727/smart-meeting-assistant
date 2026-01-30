@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Smart Meeting Assistant - Demo Flow</title>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <style>
+    .flow { display:flex; gap:10px; align-items:center; justify-content:center; flex-wrap:wrap; padding: 20px; }
+    .flow .step { background: var(--glass); border: 1px solid var(--glass-border); padding: 12px 16px; border-radius: 12px; min-width: 160px; text-align:center; }
+    .arrow { color: var(--text-dim); }
+    .pulse { animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(15, 98, 254, 0.4);} 70% { box-shadow: 0 0 0 12px rgba(15, 98, 254, 0);} 100% { box-shadow: 0 0 0 0 rgba(15, 98, 254, 0);} }
+
+    @media (max-width: 600px) {
+      .flow { flex-direction: column; gap: 8px; }
+      .flow .step { min-width: auto; width: 100%; }
+      .arrow { transform: rotate(90deg); font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1 style="margin:0; font-size:22px; letter-spacing:-1px;">VICTORS<span>AI</span></h1>
+      <div style="font-size:9px; color:var(--accent-blue); font-weight:800; letter-spacing:3px;">SMART ASSISTANT</div>
+    </div>
+    <div class="btn-group">
+      <a href="index.html" class="btn">🏠 Home</a>
+      <a href="input.html" class="btn">📝 Input</a>
+      <a href="results.html" class="btn">📊 Results</a>
+      <a href="demo.html" class="btn btn-primary">🧩 Demo Flow</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card hero" style="align-items:center;">
+      <h1>Agent Orchestration</h1>
+      <p>Understanding Agent → Summarization → Action Extraction → Follow-up → Q&A</p>
+    </div>
+
+    <div class="card" style="margin-top:15px;">
+      <div class="section-title">WORKFLOW</div>
+      <div class="flow">
+        <div class="step pulse">🧠 Understanding Agent</div>
+        <div class="arrow">→</div>
+        <div class="step">📝 Summarization Agent</div>
+        <div class="arrow">→</div>
+        <div class="step">✅ Action Agent</div>
+        <div class="arrow">→</div>
+        <div class="step">📨 Follow-up</div>
+        <div class="arrow">→</div>
+        <div class="step">💬 Q&A</div>
+      </div>
+      <div class="helper" style="text-align:center;">Static visualization for judges; optional enhancement if time allows.</div>
+    </div>
+  </main>
+
+  <footer>© 2026 VictorsAI — Smart Meeting Assistant</footer>
+</body>
+</html>
