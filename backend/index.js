@@ -1,7 +1,21 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+
+// Diagnostic startup logging
+console.log('[Startup] Starting backend...');
+process.on('uncaughtException', (err) => {
+  console.error('[Startup] Uncaught Exception:', err);
+  process.exit(1);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[Startup] Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+const envPath = path.join(__dirname, '../.env');
+console.log('[Startup] Loading env from:', envPath);
+require('dotenv').config({ path: envPath });
 
 // Import routes
 const meetingRoutes = require('./src/routes/meetingRoutes');
@@ -11,6 +25,7 @@ const watsonxConfig = require('./src/config/watsonx');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+console.log('[Startup] Port configured:', PORT);
 
 // Middleware
 app.use(cors());
@@ -56,10 +71,9 @@ app.get('/api', (req, res) => {
 app.use('/api/meeting', meetingRoutes);
 
 // Serve frontend for any non-API routes (SPA support)
-// Express 5 requires named parameters instead of wildcard *
-app.get('/{*splat}', (req, res, next) => {
-  // Skip API routes
-  if (req.path.startsWith('/api') || req.path === '/health') {
+app.use((req, res, next) => {
+  // Skip API routes and other static files
+  if (req.path.startsWith('/api') || req.path === '/health' || req.path.includes('.')) {
     return next();
   }
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
@@ -85,7 +99,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`
   ╔═══════════════════════════════════════════════════════════════════╗
   ║   🤖 Smart Meeting Assistant                                      ║
@@ -99,4 +113,13 @@ app.listen(PORT, () => {
   if (!watsonxConfig.isConfigured()) {
     console.warn('⚠️  Warning: watsonx.ai is not configured. Set WATSONX_API_KEY, WATSONX_PROJECT_ID, and WATSONX_URL in .env');
   }
+});
+
+server.on('error', (e) => {
+  if (e.code === 'EADDRINUSE') {
+    console.error(`[Startup] CRITICAL ERROR: Port ${PORT} is already in use. Please close the other process or set a different PORT in .env`);
+  } else {
+    console.error('[Startup] Server Error:', e);
+  }
+  process.exit(1);
 });
