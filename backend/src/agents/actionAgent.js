@@ -5,6 +5,7 @@
 
 const watsonx = require('../config/watsonx');
 const PROMPTS = require('../utils/prompts');
+const JsonParser = require('../utils/jsonParser');
 
 class ActionAgent {
   constructor() {
@@ -24,7 +25,7 @@ class ActionAgent {
     }
 
     try {
-      const prompt = PROMPTS.actionItems(structuredTranscript.data);
+      const prompt = PROMPTS.actionItems(structuredTranscript.data, structuredTranscript.rawTranscript);
       const response = await watsonx.generateText(prompt);
 
       // Parse JSON response
@@ -50,39 +51,10 @@ class ActionAgent {
    * @returns {object} Parsed JSON data
    */
   parseResponse(response) {
-    try {
-      // Clean response
-      let cleanResponse = response.trim();
-      if (cleanResponse.startsWith('```json')) {
-        cleanResponse = cleanResponse.slice(7);
-      }
-      if (cleanResponse.startsWith('```')) {
-        cleanResponse = cleanResponse.slice(3);
-      }
-      if (cleanResponse.endsWith('```')) {
-        cleanResponse = cleanResponse.slice(0, -3);
-      }
+    const parsed = JsonParser.extractAndParseJSON(response);
 
-      const parsed = JSON.parse(cleanResponse.trim());
-
-      // Ensure actionItems array exists
-      if (!parsed.actionItems) {
-        parsed.actionItems = [];
-      }
-
-      // Ensure summary exists
-      if (!parsed.summary) {
-        parsed.summary = {
-          totalTasks: parsed.actionItems.length,
-          assignedTasks: 0,
-          unassignedTasks: 0,
-          flaggedItems: 0,
-        };
-      }
-
-      return parsed;
-    } catch (error) {
-      console.error('Error parsing Action Agent response:', error.message);
+    if (!parsed) {
+      console.error('Error parsing Action Agent response: Parsing failed');
       return {
         actionItems: [],
         summary: {
@@ -94,6 +66,23 @@ class ActionAgent {
         parseError: true,
       };
     }
+
+    // Ensure actionItems array exists
+    if (!parsed.actionItems) {
+      parsed.actionItems = [];
+    }
+
+    // Ensure summary exists
+    if (!parsed.summary) {
+      parsed.summary = {
+        totalTasks: parsed.actionItems.length,
+        assignedTasks: 0,
+        unassignedTasks: 0,
+        flaggedItems: 0,
+      };
+    }
+
+    return parsed;
   }
 
   /**
