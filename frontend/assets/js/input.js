@@ -6,7 +6,15 @@ const els = {
   status: null,
   error: null,
   connectionStatus: null,
+  attachmentArea: null,
+  attachmentName: null,
+  attachmentSize: null,
+  removeAttachment: null,
 };
+
+// Store the uploaded file content separately
+let uploadedFileContent = null;
+let uploadedFileName = null;
 
 function qs(id) { return document.getElementById(id); }
 
@@ -59,9 +67,10 @@ async function onProcess() {
   showError('');
   els.error.style.color = ''; // Reset color
   
-  const text = els.transcript.value.trim();
+  // Use uploaded file content if available, otherwise use textarea
+  const text = uploadedFileContent || els.transcript.value.trim();
   if (!text) {
-    showError('Transcript cannot be empty.');
+    showError('Please paste a transcript or upload a document.');
     return;
   }
   
@@ -157,8 +166,11 @@ async function handleFileUpload(event) {
         return;
       }
       
-      els.transcript.value = text;
-      showSuccess(`PDF "${file.name}" loaded successfully! Click "Process Transcript" to analyze it.`);
+      // Store content and show as attachment
+      uploadedFileContent = text;
+      uploadedFileName = file.name;
+      showAttachment(file);
+      showSuccess(`PDF attached! Click "Process Transcript" to analyze it.`);
       els.error.style.color = 'var(--accent-blue, #60a5fa)';
     } catch (err) {
       console.error('PDF parsing error:', err);
@@ -172,8 +184,11 @@ async function handleFileUpload(event) {
   
   reader.onload = function(e) {
     const content = e.target.result;
-    els.transcript.value = content;
-    showSuccess(`Document "${file.name}" loaded successfully! Click "Process Transcript" to analyze it.`);
+    // Store content and show as attachment
+    uploadedFileContent = content;
+    uploadedFileName = file.name;
+    showAttachment(file);
+    showSuccess(`Document attached! Click "Process Transcript" to analyze it.`);
     els.error.style.color = 'var(--accent-blue, #60a5fa)';
   };
 
@@ -184,15 +199,53 @@ async function handleFileUpload(event) {
   reader.readAsText(file);
 }
 
+function showAttachment(file) {
+  els.attachmentArea.style.display = 'block';
+  els.attachmentName.textContent = file.name;
+  els.attachmentSize.textContent = formatFileSize(file.size);
+  // Clear the textarea placeholder to indicate file is being used
+  els.transcript.placeholder = 'Document attached above. You can also add additional notes here...';
+}
+
+function removeAttachment() {
+  uploadedFileContent = null;
+  uploadedFileName = null;
+  els.attachmentArea.style.display = 'none';
+  els.attachmentName.textContent = '';
+  els.attachmentSize.textContent = '';
+  els.transcript.placeholder = 'Paste your meeting transcript here... (Tip: Press Ctrl+Enter to process)';
+  // Reset file input
+  const fileInput = qs('fileInput');
+  if (fileInput) fileInput.value = '';
+  showError('');
+}
+
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
 function init() {
   els.transcript = qs('transcript');
   els.processBtn = qs('processBtn');
   els.status = qs('status');
   els.error = qs('error');
   els.connectionStatus = qs('connectionStatus');
+  els.attachmentArea = qs('attachmentArea');
+  els.attachmentName = qs('attachmentName');
+  els.attachmentSize = qs('attachmentSize');
+  els.removeAttachment = qs('removeAttachment');
 
   // Check backend connection on load
   updateConnectionStatus();
+  
+  // Remove attachment button
+  if (els.removeAttachment) {
+    els.removeAttachment.addEventListener('click', removeAttachment);
+  }
   
   // Process button click
   els.processBtn.addEventListener('click', onProcess);
