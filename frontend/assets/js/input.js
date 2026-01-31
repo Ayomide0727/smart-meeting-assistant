@@ -110,52 +110,78 @@ async function onProcess() {
   }
 }
 
-function loadSampleTranscript() {
-  const sampleTranscript = `Meeting: Weekly Project Sync
-Date: January 30, 2026
-Participants: John (Project Manager), Sarah (Designer), David (Developer), Mike (QA Lead - absent)
+async function extractPdfText(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  
+  // Set worker source for pdf.js
+  if (window.pdfjsLib) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+  
+  const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let fullText = '';
+  
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const textContent = await page.getTextContent();
+    const pageText = textContent.items.map(item => item.str).join(' ');
+    fullText += pageText + '\n\n';
+  }
+  
+  return fullText.trim();
+}
 
-John: Good morning everyone. Let's start with the project timeline update. David, where are we with the backend?
+async function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
-David: The API endpoints are 80% complete. I'll have the backend ready by Friday. The authentication module took longer than expected, but we're back on track.
+  const validExtensions = ['.txt', '.md', '.doc', '.docx', '.pdf'];
+  const fileName = file.name.toLowerCase();
+  const isValidType = validExtensions.some(ext => fileName.endsWith(ext));
 
-Sarah: That's great to hear. I can have the UI mockups done by Wednesday. I've already completed the homepage and dashboard designs.
+  if (!isValidType) {
+    showError('Please upload a valid document file (.txt, .md, .doc, .docx, or .pdf)');
+    return;
+  }
 
-John: Excellent work, Sarah. David, once Sarah's mockups are ready, can you coordinate with her on the frontend integration?
+  // Handle PDF files with pdf.js
+  if (fileName.endsWith('.pdf')) {
+    try {
+      showSuccess('Reading PDF file...');
+      els.error.style.color = 'var(--accent-blue, #60a5fa)';
+      
+      const text = await extractPdfText(file);
+      
+      if (!text || text.trim().length === 0) {
+        showError('Could not extract text from PDF. The file may be scanned or image-based.');
+        return;
+      }
+      
+      els.transcript.value = text;
+      showSuccess(`PDF "${file.name}" loaded successfully! Click "Process Transcript" to analyze it.`);
+      els.error.style.color = 'var(--accent-blue, #60a5fa)';
+    } catch (err) {
+      console.error('PDF parsing error:', err);
+      showError('Failed to read PDF file. Please ensure it is a valid PDF document.');
+    }
+    return;
+  }
 
-David: Absolutely. I'll block out Thursday for integration work with Sarah.
+  // For text-based files (.txt, .md, .doc, .docx)
+  const reader = new FileReader();
+  
+  reader.onload = function(e) {
+    const content = e.target.result;
+    els.transcript.value = content;
+    showSuccess(`Document "${file.name}" loaded successfully! Click "Process Transcript" to analyze it.`);
+    els.error.style.color = 'var(--accent-blue, #60a5fa)';
+  };
 
-John: What about the testing plan? Mike isn't here today - he's out sick.
+  reader.onerror = function() {
+    showError('Failed to read the file. Please try again.');
+  };
 
-Sarah: I think we need to assign someone to cover Mike's testing tasks until he's back.
-
-John: Good point. David, can you handle basic smoke testing? We'll need Mike to do the comprehensive QA when he returns.
-
-David: I can do basic testing, but someone should follow up with Mike about the full test plan.
-
-John: Agreed. Now, about the budget allocation for the cloud infrastructure - we still need approval from management. This is blocking our deployment timeline.
-
-Sarah: Should we escalate this to the director? We've been waiting for two weeks.
-
-John: Yes, let's escalate. I'll send an email to Director Chen today. We need a decision by next Wednesday at the latest.
-
-David: One more thing - I noticed some security vulnerabilities in the third-party library we're using. We should schedule a security review.
-
-John: That's concerning. Can you document the specific vulnerabilities? We'll need to address this before launch.
-
-David: I'll create a security assessment document by Monday.
-
-John: Perfect. Let's schedule a follow-up meeting next Tuesday to review progress on all these items. Any other concerns?
-
-Sarah: Just want to confirm - the design system documentation is still on track for next Friday.
-
-John: Noted. Alright, let's wrap up. Remember: David on backend by Friday, Sarah on mockups by Wednesday, security assessment by Monday, and I'll handle the budget escalation today.
-
-Meeting ended at 10:45 AM.`;
-
-  els.transcript.value = sampleTranscript;
-  showSuccess('Sample transcript loaded! Click "Process Transcript" to analyze it.');
-  els.error.style.color = 'var(--accent-blue, #60a5fa)';
+  reader.readAsText(file);
 }
 
 function init() {
@@ -178,10 +204,12 @@ function init() {
     }
   });
   
-  // Add sample button if it exists
-  const sampleBtn = qs('sampleBtn');
-  if (sampleBtn) {
-    sampleBtn.addEventListener('click', loadSampleTranscript);
+  // Add upload button functionality
+  const uploadBtn = qs('uploadBtn');
+  const fileInput = qs('fileInput');
+  if (uploadBtn && fileInput) {
+    uploadBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', handleFileUpload);
   }
   
   // Periodically check connection status

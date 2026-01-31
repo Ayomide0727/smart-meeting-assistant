@@ -10,6 +10,7 @@
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" as="style">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap">
   <link rel="stylesheet" href="assets/css/base.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script type="module" src="assets/js/input.js" defer></script>
   <style>
     /* Critical CSS to prevent white flash */
@@ -41,7 +42,8 @@
 
       <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items: center;">
         <button id="processBtn" class="btn btn-primary">Process Transcript</button>
-        <button id="sampleBtn" class="btn" title="Load a sample meeting transcript">📋 Load Sample</button>
+        <input type="file" id="fileInput" accept=".txt,.md,.doc,.docx,.pdf" style="display:none;">
+        <button id="uploadBtn" class="btn" title="Upload a document file">📄 Upload Document</button>
         <span id="status" class="status" style="display:none;"><span class="spinner"></span> Processing with AI agents...</span>
       </div>
       <div id="error" class="error" style="display:none;"></div>
