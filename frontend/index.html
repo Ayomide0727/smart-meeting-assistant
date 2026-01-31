@@ -4,11 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VICTORSAI – Smart Meeting Assistant</title>
-  <!-- Using project color scheme and font consistent with index.html -->
+  <!-- Preload fonts to prevent FOUC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" as="style">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap">
   <link rel="stylesheet" href="assets/css/styles.css" />
   <link rel="icon" href="data:,">
+  <style>
+    /* Critical CSS to prevent white flash */
+    html { background: #030408; }
+    body { opacity: 0; transition: opacity 0.15s ease-in; }
+    body.loaded { opacity: 1; }
+  </style>
 </head>
-<body>
+<body onload="document.body.classList.add('loaded')">
 
   <!-- NAVBAR -->
   <nav class="navbar">

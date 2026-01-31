@@ -4,10 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Smart Meeting Assistant - Results</title>
+  <!-- Preload fonts to prevent FOUC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" as="style">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap">
   <link rel="stylesheet" href="assets/css/base.css">
   <script type="module" src="assets/js/results.js" defer></script>
+  <style>
+    /* Critical CSS to prevent white flash */
+    html { background: #030408; }
+    body { opacity: 0; transition: opacity 0.15s ease-in; }
+    body.loaded { opacity: 1; }
+  </style>
 </head>
-<body>
+<body onload="document.body.classList.add('loaded')">
   <header>
     <div>
       <h1 style="margin:0; font-size:22px; letter-spacing:-1px;">VICTORS<span>AI</span></h1>
@@ -22,31 +33,38 @@
   </header>
 
   <main class="container">
-    <div class="grid grid-2">
-      <div class="card" style="min-height:300px;">
+    <!-- Three cards in a row -->
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:15px;">
+      <div class="card" style="min-height:420px;">
         <div class="section-title">SUMMARY</div>
-        <ul id="summary" class="list scroll">
+        <ul id="summary" class="list scroll" style="max-height:360px;">
           <li>Waiting for results...</li>
         </ul>
       </div>
-      <div class="card" style="min-height:300px;">
+      <div class="card" style="min-height:420px;">
         <div class="section-title">ACTION ITEMS</div>
-        <ul id="actions" class="list scroll">
+        <ul id="actions" class="list scroll" style="max-height:360px;">
           <li>No tasks yet.</li>
         </ul>
       </div>
-      <div class="card" style="min-height:240px;">
+      <div class="card" style="min-height:420px;">
         <div class="section-title">FOLLOW-UP RECOMMENDATIONS</div>
-        <ul id="followups" class="list scroll">
+        <ul id="followups" class="list scroll" style="max-height:360px;">
           <li>None yet.</li>
         </ul>
       </div>
-      <div class="card" style="min-height:240px;">
-        <div class="section-title">RAW OUTPUT (DEBUG)</div>
-        <pre id="raw" class="scroll" style="white-space:pre-wrap; color: var(--text-dim);"></pre>
-      </div>
     </div>
 
+    <!-- Raw Data Section (Missing elements fixed) -->
+    <div class="card" style="margin-top:15px; display:none;" id="rawSection">
+      <div class="section-title">RAW ANALYSIS DATA</div>
+      <div id="metadata"></div>
+      <pre id="raw" class="scroll" style="font-size:10px; opacity:0.6; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; max-height:200px;"></pre>
+    </div>
+  </main>
+
+  <!-- Q&A Chat at bottom -->
+  <div class="container" style="padding-bottom:20px;">
     <div class="card" style="margin-top:15px;">
       <div class="section-title">Q&A CHAT</div>
       <div id="qaLog" class="chat-log scroll" style="max-height:260px;"></div>
@@ -57,7 +75,7 @@
       </div>
       <div id="qaError" class="error" style="display:none;"></div>
     </div>
-  </main>
+  </div>
 
   <footer>© 2026 VictorsAI — Smart Meeting Assistant</footer>
 </body>
