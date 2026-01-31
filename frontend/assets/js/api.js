@@ -1,5 +1,5 @@
-// API Configuration - Update this URL based on your backend deployment
-const API_BASE_URL = 'http://localhost:5000/api';
+// API Configuration - Uses relative path for port-agnostic operation
+const API_BASE_URL = '/api';
 
 /**
  * Process a meeting transcript through all AI agents
@@ -140,7 +140,7 @@ export async function getFollowUps(transcript) {
  */
 export async function checkHealth() {
   try {
-    const res = await fetch(`${API_BASE_URL.replace('/api', '')}/health`);
+    const res = await fetch('/health');
     const data = await res.json();
     return data.status === 'OK';
   } catch {
