@@ -9,6 +9,8 @@ const PROMPTS = {
    * Cleans and structures the transcript, identifies key elements
    */
   understanding: (transcript) => `
+[STRICT INSTRUCTION: RESPOND ONLY WITH VALID JSON. NO PREAMBLE, NO EXPLANATION, NO CONVERSATION.]
+
 You are a Meeting Understanding Agent. Your role is to analyze meeting transcripts and extract structured information.
 
 TASK: Analyze the following meeting transcript and provide a structured summary.
@@ -35,29 +37,35 @@ OUTPUT FORMAT (JSON):
   "meetingSummary": "A brief 2-3 sentence summary of the meeting"
 }
 
-Respond ONLY with valid JSON, no additional text.
+[STRICT INSTRUCTION: RESPOND ONLY WITH VALID JSON.]
 `,
 
   /**
    * Action & Ownership Agent Prompt
    * Extracts action items and assigns ownership
    */
-  actionItems: (structuredTranscript) => `
-You are an Action & Ownership Agent. Your role is to extract action items from meeting content and identify task ownership.
+  actionItems: (structuredSummary, rawTranscript) => `
+[STRICT INSTRUCTION: RESPOND ONLY WITH VALID JSON. NO PREAMBLE, NO EXPLANATION, NO CONVERSATION.]
 
-TASK: Analyze the following structured meeting content and extract all action items.
+You are an Action & Ownership Agent. Your role is to extract precise action items from meeting transcripts and identify task ownership.
 
-MEETING CONTENT:
-${JSON.stringify(structuredTranscript, null, 2)}
+TASK: Analyze the following meeting content and extract all action items. Use the structured summary for context, but rely on the RAW TRANSCRIPT for specific task details and ownership.
+
+STRUCTURED SUMMARY:
+${JSON.stringify(structuredSummary, null, 2)}
+
+RAW TRANSCRIPT:
+${rawTranscript}
 
 INSTRUCTIONS:
-1. Identify all tasks or action items mentioned
+1. Identify all tasks, action items, or commitments mentioned in the RAW TRANSCRIPT.
 2. For each task, determine:
    - Who is responsible (owner)
    - What is the deadline (if mentioned)
    - Priority level (high/medium/low based on context)
-3. Flag tasks with NO clear owner as "UNASSIGNED"
-4. Flag tasks with NO deadline as "NO_DEADLINE"
+3. Look specifically for phrases like "I will", "can you", "let's prioritize", "responsible for", "deadline is".
+4. Flag tasks with NO clear owner as "UNASSIGNED".
+5. Flag tasks with NO deadline as "NO_DEADLINE".
 
 OUTPUT FORMAT (JSON):
 {
@@ -80,30 +88,35 @@ OUTPUT FORMAT (JSON):
   }
 }
 
-Respond ONLY with valid JSON, no additional text.
+[STRICT INSTRUCTION: RESPOND ONLY WITH VALID JSON.]
 `,
 
   /**
    * Follow-Up Orchestration Agent Prompt
    * Generates follow-up recommendations
    */
-  followUp: (structuredTranscript, actionItems) => `
+  followUp: (structuredSummary, actionItems, rawTranscript) => `
+[STRICT INSTRUCTION: RESPOND ONLY WITH VALID JSON. NO PREAMBLE, NO EXPLANATION, NO CONVERSATION.]
+
 You are a Follow-Up Orchestration Agent. Your role is to suggest follow-up actions and next steps based on meeting outcomes.
 
-TASK: Analyze the meeting content and action items, then recommend follow-up actions.
+TASK: Analyze the meeting content and action items, then recommend follow-up actions. Use the summary and action items for context, but refer to the RAW TRANSCRIPT for deeper insights into pending discussions.
 
-MEETING CONTENT:
-${JSON.stringify(structuredTranscript, null, 2)}
+STRUCTURED SUMMARY:
+${JSON.stringify(structuredSummary, null, 2)}
 
 ACTION ITEMS:
 ${JSON.stringify(actionItems, null, 2)}
 
+RAW TRANSCRIPT:
+${rawTranscript}
+
 INSTRUCTIONS:
-1. Identify items that need escalation
-2. Suggest follow-up meetings if needed
-3. Recommend communication actions
-4. Flag urgent items that need immediate attention
-5. Suggest timeline for next steps
+1. Identify items that need escalation or further discussion in the RAW TRANSCRIPT.
+2. Suggest follow-up meetings if the transcript shows unresolved tension or complex technical blockers.
+3. Recommend communication actions (email, Slack, etc.) for specific stakeholders.
+4. Flag urgent items that need immediate attention before the next sprint.
+5. Suggest a concrete timeline for next steps.
 
 OUTPUT FORMAT (JSON):
 {
@@ -133,7 +146,7 @@ OUTPUT FORMAT (JSON):
   }
 }
 
-Respond ONLY with valid JSON, no additional text.
+[STRICT INSTRUCTION: RESPOND ONLY WITH VALID JSON.]
 `,
 
   /**
@@ -141,6 +154,8 @@ Respond ONLY with valid JSON, no additional text.
    * Answers questions about the meeting
    */
   qa: (structuredTranscript, question) => `
+[STRICT INSTRUCTION: RESPOND ONLY WITH VALID JSON. NO PREAMBLE, NO EXPLANATION, NO CONVERSATION.]
+
 You are a Knowledge/Q&A Agent. Your role is to answer specific questions about meeting content.
 
 TASK: Answer the user's question based on the meeting content provided.
@@ -166,7 +181,7 @@ OUTPUT FORMAT (JSON):
   "relatedTopics": ["other related topics from the meeting the user might want to know about"]
 }
 
-Respond ONLY with valid JSON, no additional text.
+[STRICT INSTRUCTION: RESPOND ONLY WITH VALID JSON.]
 `,
 };
 
