@@ -5,6 +5,7 @@
 
 const watsonx = require('../config/watsonx');
 const PROMPTS = require('../utils/prompts');
+const JsonParser = require('../utils/jsonParser');
 
 class FollowUpAgent {
   constructor() {
@@ -25,7 +26,7 @@ class FollowUpAgent {
     }
 
     try {
-      const prompt = PROMPTS.followUp(structuredTranscript.data, actionItems?.data || {});
+      const prompt = PROMPTS.followUp(structuredTranscript.data, actionItems?.data || {}, structuredTranscript.rawTranscript);
       const response = await watsonx.generateText(prompt);
 
       // Parse JSON response
@@ -51,40 +52,10 @@ class FollowUpAgent {
    * @returns {object} Parsed JSON data
    */
   parseResponse(response) {
-    try {
-      // Clean response
-      let cleanResponse = response.trim();
-      if (cleanResponse.startsWith('```json')) {
-        cleanResponse = cleanResponse.slice(7);
-      }
-      if (cleanResponse.startsWith('```')) {
-        cleanResponse = cleanResponse.slice(3);
-      }
-      if (cleanResponse.endsWith('```')) {
-        cleanResponse = cleanResponse.slice(0, -3);
-      }
+    const parsed = JsonParser.extractAndParseJSON(response);
 
-      const parsed = JSON.parse(cleanResponse.trim());
-
-      // Ensure required arrays exist
-      if (!parsed.followUpActions) {
-        parsed.followUpActions = [];
-      }
-      if (!parsed.escalations) {
-        parsed.escalations = [];
-      }
-      if (!parsed.nextMeetingSuggestion) {
-        parsed.nextMeetingSuggestion = {
-          recommended: false,
-          suggestedTimeframe: 'Not specified',
-          agenda: [],
-          requiredAttendees: [],
-        };
-      }
-
-      return parsed;
-    } catch (error) {
-      console.error('Error parsing Follow-Up Agent response:', error.message);
+    if (!parsed) {
+      console.error('Error parsing Follow-Up Agent response: Parsing failed');
       return {
         followUpActions: [],
         escalations: [],
@@ -97,6 +68,24 @@ class FollowUpAgent {
         parseError: true,
       };
     }
+
+    // Ensure required arrays exist
+    if (!parsed.followUpActions) {
+      parsed.followUpActions = [];
+    }
+    if (!parsed.escalations) {
+      parsed.escalations = [];
+    }
+    if (!parsed.nextMeetingSuggestion) {
+      parsed.nextMeetingSuggestion = {
+        recommended: false,
+        suggestedTimeframe: 'Not specified',
+        agenda: [],
+        requiredAttendees: [],
+      };
+    }
+
+    return parsed;
   }
 
   /**
