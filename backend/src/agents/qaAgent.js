@@ -5,6 +5,7 @@
 
 const watsonx = require('../config/watsonx');
 const PROMPTS = require('../utils/prompts');
+const JsonParser = require('../utils/jsonParser');
 
 class QAAgent {
   constructor() {
@@ -55,39 +56,10 @@ class QAAgent {
    * @returns {object} Parsed JSON data
    */
   parseResponse(response) {
-    try {
-      // Clean response
-      let cleanResponse = response.trim();
-      if (cleanResponse.startsWith('```json')) {
-        cleanResponse = cleanResponse.slice(7);
-      }
-      if (cleanResponse.startsWith('```')) {
-        cleanResponse = cleanResponse.slice(3);
-      }
-      if (cleanResponse.endsWith('```')) {
-        cleanResponse = cleanResponse.slice(0, -3);
-      }
+    const parsed = JsonParser.extractAndParseJSON(response);
 
-      const parsed = JSON.parse(cleanResponse.trim());
-
-      // Ensure required fields exist
-      if (!parsed.answer) {
-        parsed.answer = 'Unable to find an answer to your question based on the meeting content.';
-      }
-      if (!parsed.confidence) {
-        parsed.confidence = 'low';
-      }
-      if (!parsed.relevantContext) {
-        parsed.relevantContext = [];
-      }
-      if (!parsed.relatedTopics) {
-        parsed.relatedTopics = [];
-      }
-
-      return parsed;
-    } catch (error) {
-      console.error('Error parsing Q&A Agent response:', error.message);
-      // Try to extract a plain text answer if JSON parsing fails
+    if (!parsed) {
+      console.error('Error parsing Q&A Agent response: Parsing failed');
       return {
         answer: response.trim() || 'Unable to process your question.',
         confidence: 'low',
@@ -96,6 +68,22 @@ class QAAgent {
         parseError: true,
       };
     }
+
+    // Ensure required fields exist
+    if (!parsed.answer) {
+      parsed.answer = 'Unable to find an answer to your question based on the meeting content.';
+    }
+    if (!parsed.confidence) {
+      parsed.confidence = 'low';
+    }
+    if (!parsed.relevantContext) {
+      parsed.relevantContext = [];
+    }
+    if (!parsed.relatedTopics) {
+      parsed.relatedTopics = [];
+    }
+
+    return parsed;
   }
 
   /**
