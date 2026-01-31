@@ -4,10 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Smart Meeting Assistant - Input</title>
+  <!-- Preload fonts to prevent FOUC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" as="style">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap">
   <link rel="stylesheet" href="assets/css/base.css">
   <script type="module" src="assets/js/input.js" defer></script>
+  <style>
+    /* Critical CSS to prevent white flash */
+    html { background: #030408; }
+    body { opacity: 0; transition: opacity 0.15s ease-in; }
+    body.loaded { opacity: 1; }
+  </style>
 </head>
-<body>
+<body onload="document.body.classList.add('loaded')">
   <header>
     <div>
       <h1 style="margin:0; font-size:22px; letter-spacing:-1px;">VICTORS<span>AI</span></h1>
