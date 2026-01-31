@@ -227,9 +227,14 @@ function renderFollowups(data) {
 }
 
 function renderRaw(data) {
-  els.raw.textContent = JSON.stringify(data, null, 2);
+  if (els.raw) {
+    els.raw.textContent = JSON.stringify(data, null, 2);
+  }
 }
 
+/**
+ * Render metadata section if available
+ */
 /**
  * Render metadata section if available
  */
@@ -238,6 +243,9 @@ function renderMetadata(data) {
   const processingTime = data.processingTime || '';
   const sessionId = data.sessionId || '';
   
+  const metaContainer = document.getElementById('metadata') || els.raw;
+  if (!metaContainer) return;
+
   if (Object.keys(metadata).length > 0 || processingTime) {
     const metaHtml = `
       <div style="font-size: 11px; color: var(--text-dim); padding: 8px; background: var(--bg-dark); border-radius: 4px; margin-bottom: 8px;">
@@ -249,8 +257,7 @@ function renderMetadata(data) {
         ${sessionId ? `<br>Session: ${sessionId}` : ''}
       </div>
     `;
-    // Insert at top of raw section
-    els.raw.insertAdjacentHTML('beforebegin', metaHtml);
+    metaContainer.innerHTML = metaHtml;
   }
 }
 
