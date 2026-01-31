@@ -5,6 +5,7 @@
 
 const watsonx = require('../config/watsonx');
 const PROMPTS = require('../utils/prompts');
+const JsonParser = require('../utils/jsonParser');
 
 class UnderstandingAgent {
   constructor() {
@@ -48,33 +49,10 @@ class UnderstandingAgent {
    * @returns {object} Parsed JSON data
    */
   parseResponse(response) {
-    try {
-      // Clean response - remove any markdown code blocks if present
-      let cleanResponse = response.trim();
-      if (cleanResponse.startsWith('```json')) {
-        cleanResponse = cleanResponse.slice(7);
-      }
-      if (cleanResponse.startsWith('```')) {
-        cleanResponse = cleanResponse.slice(3);
-      }
-      if (cleanResponse.endsWith('```')) {
-        cleanResponse = cleanResponse.slice(0, -3);
-      }
+    const parsed = JsonParser.extractAndParseJSON(response);
 
-      const parsed = JSON.parse(cleanResponse.trim());
-
-      // Validate required fields
-      const requiredFields = ['participants', 'keyPoints', 'decisions', 'meetingSummary'];
-      for (const field of requiredFields) {
-        if (!(field in parsed)) {
-          parsed[field] = field === 'meetingSummary' ? 'No summary available' : [];
-        }
-      }
-
-      return parsed;
-    } catch (error) {
-      console.error('Error parsing Understanding Agent response:', error.message);
-      // Return a default structure if parsing fails
+    if (!parsed) {
+      console.error('Error parsing Understanding Agent response: Parsing failed');
       return {
         participants: [],
         keyPoints: [],
@@ -86,6 +64,16 @@ class UnderstandingAgent {
         parseError: true,
       };
     }
+
+    // Validate required fields
+    const requiredFields = ['participants', 'keyPoints', 'decisions', 'meetingSummary'];
+    for (const field of requiredFields) {
+      if (!(field in parsed)) {
+        parsed[field] = field === 'meetingSummary' ? 'No summary available' : [];
+      }
+    }
+
+    return parsed;
   }
 }
 
